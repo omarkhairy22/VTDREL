@@ -1,3 +1,8 @@
+## Hardware Components
+* STM32F401CCU6 Microcontroller
+* SIM900 GSM Module
+* VS1838B Infrared Receiver
+
 ## PIN Configurations
 | PIN  |             Function                |
 |------|-------------------------------------|
