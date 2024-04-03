@@ -8,7 +8,7 @@
 #include "IR_Private.h"
 #include "IR_Config.h"
 
-#include "STK_Interface.h"
+#include "TIM3_Interface.h"
 #include "GPIO_Interface.h"
 #include "EXTI_Interface.h"
 
@@ -70,14 +70,15 @@ void IR_voidSetCallBack(void (*LPF)(void))
 void IR_voidRecord(void)
 {
 	static u8 Local_u8Bit = 31;
+	u16 Local_u16Time;
 	if (!IR_u8StartFlag)
 	{
-		STK_voidSetIntervalSingle(15000, NULL);
+		TIM3_voidSetIntervalSingle(15000, NULL);
 		IR_u8StartFlag = 1;
 	}
 	else
 	{
-		u16 Local_u16Time = STK_u32GetElapsedTime();
+		Local_u16Time = TIM3_u16GetElapsedTime();
 		if (Local_u16Time >= 13000 && Local_u16Time <= 14000)
 		{
 			Local_u8Bit = 31;
@@ -90,7 +91,7 @@ void IR_voidRecord(void)
 		{
 			CLR_BIT(IR_u32Temp, Local_u8Bit--);
 		}
-		STK_voidSetIntervalSingle(15000, &IR_voidEnd);
+		TIM3_voidSetIntervalSingle(15000, &IR_voidEnd);
 	}
 }
 

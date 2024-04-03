@@ -48,20 +48,29 @@ u8 USART1_u8Trancieve(u8 Copy_u8Data)
 	return USART1_DR;
 }
 
-void USART1_voidEnableRxINT(void (*LpF)(void))
+void USART1_voidEnableRxINT(void)
 {
-	// Save CallBack
-	USART1_GpF = LpF;
-    // Enable RXNE INT
 	SET_BIT(USART1_CR1, 5);
 }
 
 void USART1_voidDisableRxINT(void)
 {
-	// Reset CallBack
-	USART1_GpF = NULL;
-	// Disable RXNE INT
 	CLR_BIT(USART1_CR1, 5);
+}
+
+void USART1_voidSetCallBack(void (*LpF)(void))
+{
+	USART1_GpF = LpF;
+}
+
+void USART1_voidEnableRxDMA(void)
+{
+	SET_BIT(USART1_CR3, 6);
+}
+
+void USART1_voidDisableRxDMA(void)
+{
+	CLR_BIT(USART1_CR3, 6);
 }
 
 void USART1_IRQHandler()
