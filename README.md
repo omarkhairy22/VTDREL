@@ -10,6 +10,6 @@
 |PINA1 | 'Unlock/Lock' LED                   |
 |PINA2 | 'Alert' LED                         |
 |PINA3 | 'Engine on' LED                     |
-|PINA9 | Connected to GSM module 'Rx'        |
-|PINA10| Connected to GSM module 'Tx'        |
+|PINA9 | Connected to GSM module 'RXD'       |
+|PINA10| Connected to GSM module 'TXD'       |
 |PINC13| Connected to IR receiver 'OUT'      |
