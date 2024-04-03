@@ -7,7 +7,9 @@
 | PIN  |             Function                |
 |------|-------------------------------------|
 |PINA0 | Engine ignition push button         |
-|PINA1 | 'Alert' LED                         |
-|PINA2 | 'Engine on' LED                     |
-|PINC13| Blinks when an IR frame is received |
-|PINC14| Connected to IR Receiver 'OUT'      |
+|PINA1 | 'Unlock/Lock' LED                   |
+|PINA2 | 'Alert' LED                         |
+|PINA3 | 'Engine on' LED                     |
+|PINA9 | Connected to GSM module 'Rx'        |
+|PINA10| Connected to GSM module 'Tx'        |
+|PINC13| Connected to IR receiver 'OUT'      |
