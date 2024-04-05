@@ -15,7 +15,7 @@
 /*Global Pointer to Function*/
 void (*GSM_GpF)(void) = NULL;
 
-volatile u8 GSM_u8MessageBuffer[PN_STRLENGTH + 5];
+volatile u8 GSM_u8MessageBuffer[PN_STRLENGTH + 3];
 
 void GSM_voidInit(void)
 {
@@ -123,7 +123,7 @@ static void GSM_voidCheckSMS(void)
 			USART1_voidDisableRxINT();
 			USART1_voidEnableRxDMA();
 			DMA2_voidSetCallBack(&GSM_voidVerifySMS);
-			DMA2_voidStart(S2, USART1_ADDR, (u32)&GSM_u8MessageBuffer, PN_STRLENGTH + 5);
+			DMA2_voidStart(S2, USART1_ADDR, (u32)&GSM_u8MessageBuffer, PN_STRLENGTH + 3);
 		}
 		else
 		{
@@ -143,7 +143,7 @@ static void GSM_voidVerifySMS(void)
 {
 	u8 Local_u8Counter;
 	u8 Local_u8Index;
-	for (Local_u8Counter = 0; Local_u8Counter < 4; Local_u8Counter++)
+	for (Local_u8Counter = 0; Local_u8Counter < 2; Local_u8Counter++)
 	{
 		if (GSM_u8MessageBuffer[Local_u8Counter] == '"')
 		{
