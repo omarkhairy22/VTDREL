@@ -23,6 +23,7 @@
 #define		BUTTONHOLD		5
 #define		ENGINEON		6
 
+u8 APP_u8Attempts;
 u16 APP_u16Flags;
 u32 APP_u32NextUnlockAttemptTime = 0;
 u32 APP_u32NextIgnitionAttemptTime = 0;
@@ -93,8 +94,8 @@ int main()
     GSM_voidInit();
     GSM_voidDisableSMSRx();
 
+    APP_u8Attempts = 2;
     APP_u16Flags = 0;
-    u8 Local_u8Attempts = 2;
     u32 Local_u32CurrTime;
     while(1)
     {
@@ -125,15 +126,15 @@ int main()
     			if (IR_u8GetFrameData() == IRCODE)
         		{
         			/* If the received code is correct, unlock the car */
-        			Local_u8Attempts = 2;
+    				APP_u8Attempts = 2;
         			SET_BIT(APP_u16Flags, UNLOCKED);
         			APP_u32LEDTurnOffTime = Local_u32CurrTime + 300000;
         			GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_HIGH);
         			SET_BIT(APP_u16Flags, LEDON);
         		}
-    			else if (Local_u8Attempts)
+    			else if (APP_u8Attempts)
     			{
-    				Local_u8Attempts--;
+    				APP_u8Attempts--;
     			}
     			else
     			{
@@ -158,9 +159,9 @@ int main()
     			TOG_BIT(APP_u16Flags, ENGINEON);
     			GPIO_voidSetPinValueDirectAccess(IOA, PIN3, GET_BIT(APP_u16Flags, ENGINEON));
     		}
-    		else if (Local_u8Attempts)
+    		else if (APP_u8Attempts)
     		{
-    			Local_u8Attempts--;
+    			APP_u8Attempts--;
     		}
     		else
     		{
@@ -207,4 +208,5 @@ void APP_voidUserVerified(void)
 	CLR_BIT(APP_u16Flags, ALERTACK);
 	CLR_BIT(APP_u16Flags, ALERT);
 	GPIO_voidSetPinValueDirectAccess(IOA, PIN2, OUTPUT_LOW);
+	APP_u8Attempts = 2;
 }
