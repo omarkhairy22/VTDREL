@@ -33,17 +33,13 @@ void DMA2_voidChannelInit(u8 Copy_u8Stream, u8 Copy_u8Channel, u8 Copy_u8Directi
 			CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 7);
 			// PINC OFF
 			CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 9);
-			// MINC ON
-			SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 10);
 			break;
 		case MTP:
 			// Memory-to-peripheral
 			SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 6);
 			CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 7);
-			// PINC ON
-			SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 9);
-			// MINC OFF
-			CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 10);
+			// PINC OFF
+			CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 9);
 			break;
 		default:
 			// Memory-to-memory
@@ -51,9 +47,9 @@ void DMA2_voidChannelInit(u8 Copy_u8Stream, u8 Copy_u8Channel, u8 Copy_u8Directi
 			SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 7);
 			// PINC ON
 			SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 9);
-			// MINC ON
-			SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 10);
 		}
+		// MINC ON
+		SET_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 10);
 		// Transfer byte by byte (8-bit)
 		CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 11);
 		CLR_BIT(DMA2->Stream[Copy_u8Stream].SxCR, 12);
