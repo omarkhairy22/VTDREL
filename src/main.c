@@ -60,9 +60,10 @@ int main()
     GPIO_voidSetPinMode(IOA, PIN2, OUTPUT);
     GPIO_voidSetPinType(IOA, PIN2, OUTPUT_PP);
     GPIO_voidSetPinSpeed(IOA, PIN2, OUTPUT_LS);
-    GPIO_voidSetPinMode(IOA, PIN3, OUTPUT);
-    GPIO_voidSetPinType(IOA, PIN3, OUTPUT_PP);
-    GPIO_voidSetPinSpeed(IOA, PIN3, OUTPUT_LS);
+    GPIO_voidSetPinValueDirectAccess(IOC, PIN13, OUTPUT_HIGH);
+    GPIO_voidSetPinMode(IOC, PIN13, OUTPUT);
+    GPIO_voidSetPinType(IOC, PIN13, OUTPUT_PP);
+    GPIO_voidSetPinSpeed(IOC, PIN13, OUTPUT_LS);
     /* Input pull up pin */
     GPIO_voidSetPinMode(IOA, PIN0, INPUT);
     GPIO_voidSetPinPuPdConfig(IOA, PIN0, INPUT_PU);
@@ -88,7 +89,7 @@ int main()
     /* Enable EXTI15_10 interrupt */
     NVIC_voidEnablePeriInt(40);
     /* IR Init */
-    IR_voidInit(EXTI_PORTC, PIN13);
+    IR_voidInit(EXTI_PORTC, PIN14);
     IR_voidSetCallBack(&APP_voidUnlockRequest);
     /* GSM Init */
     GSM_voidInit();
@@ -104,7 +105,7 @@ int main()
     	/* Turn off the unlock LED after a cool-down */
     	if (GET_BIT(APP_u16Flags, LEDON) && Local_u32CurrTime >= APP_u32LEDTurnOffTime)
     	{
-    		GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_LOW);
+    		GPIO_voidSetPinValueDirectAccess(IOC, PIN13, OUTPUT_HIGH);
     		APP_u32LEDTurnOffTime = 0;
     		CLR_BIT(APP_u16Flags, LEDON);
     	}
@@ -117,7 +118,7 @@ int main()
         		{
         			CLR_BIT(APP_u16Flags, UNLOCKED);
         			APP_u32LEDTurnOffTime = Local_u32CurrTime + 750000;
-        			GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_HIGH);
+        			GPIO_voidSetPinValueDirectAccess(IOC, PIN13, OUTPUT_LOW);
         			SET_BIT(APP_u16Flags, LEDON);
         		}
     		}
@@ -129,7 +130,7 @@ int main()
     				APP_u8Attempts = 2;
         			SET_BIT(APP_u16Flags, UNLOCKED);
         			APP_u32LEDTurnOffTime = Local_u32CurrTime + 300000;
-        			GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_HIGH);
+        			GPIO_voidSetPinValueDirectAccess(IOC, PIN13, OUTPUT_LOW);
         			SET_BIT(APP_u16Flags, LEDON);
         		}
     			else if (APP_u8Attempts)
@@ -157,7 +158,7 @@ int main()
     		{
     			/* Start/shut down the engine */
     			TOG_BIT(APP_u16Flags, ENGINEON);
-    			GPIO_voidSetPinValueDirectAccess(IOA, PIN3, GET_BIT(APP_u16Flags, ENGINEON));
+    			GPIO_voidSetPinValueDirectAccess(IOA, PIN2, GET_BIT(APP_u16Flags, ENGINEON));
     		}
     		else if (APP_u8Attempts)
     		{
@@ -174,7 +175,7 @@ int main()
     	{
     		if (!GET_BIT(APP_u16Flags, ALERTACK))
     		{
-	    		GPIO_voidSetPinValueDirectAccess(IOA, PIN2, OUTPUT_HIGH);
+	    		GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_HIGH);
 	    		GSM_voidEnableSMSRx();
 	    		GSM_voidMakeCall();
 	    		GSM_voidSetSMSVerificationCallBack(&APP_voidUserVerified);
@@ -207,6 +208,6 @@ void APP_voidUserVerified(void)
 	GSM_voidDisableSMSRx();
 	CLR_BIT(APP_u16Flags, ALERTACK);
 	CLR_BIT(APP_u16Flags, ALERT);
-	GPIO_voidSetPinValueDirectAccess(IOA, PIN2, OUTPUT_LOW);
+	GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_LOW);
 	APP_u8Attempts = 2;
 }
