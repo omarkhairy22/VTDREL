@@ -20,14 +20,18 @@
 #define		LEDON			2
 #define		ALERT			3
 #define		ALERTACK		4
-#define		BUTTONHOLD		5
-#define		ENGINEON		6
+#define		LOCTRACKING		5
+#define		SMSRXFLAG		6
+#define		ADVLOCKFLAG		7
+#define		BUTTONHOLD		8
+#define		ENGINEON		9
 
 u8 APP_u8Attempts;
 u16 APP_u16Flags;
 u32 APP_u32NextUnlockAttemptTime = 0;
 u32 APP_u32NextIgnitionAttemptTime = 0;
 u32 APP_u32LEDTurnOffTime = 0;
+u32 APP_u32LocUpdateTime = 0;
 void APP_voidUnlockRequest(void);
 void APP_voidTimerAdjust(void);
 void APP_voidUserVerified(void);
@@ -60,6 +64,10 @@ int main()
     GPIO_voidSetPinMode(IOA, PIN2, OUTPUT);
     GPIO_voidSetPinType(IOA, PIN2, OUTPUT_PP);
     GPIO_voidSetPinSpeed(IOA, PIN2, OUTPUT_LS);
+    GPIO_voidSetPinMode(IOA, PIN3, OUTPUT);
+    GPIO_voidSetPinType(IOA, PIN3, OUTPUT_PP);
+    GPIO_voidSetPinSpeed(IOA, PIN3, OUTPUT_LS);
+    GPIO_voidSetPinValueDirectAccess(IOA, PIN3, OUTPUT_HIGH);
     GPIO_voidSetPinValueDirectAccess(IOC, PIN13, OUTPUT_HIGH);
     GPIO_voidSetPinMode(IOC, PIN13, OUTPUT);
     GPIO_voidSetPinType(IOC, PIN13, OUTPUT_PP);
@@ -100,6 +108,32 @@ int main()
     u32 Local_u32CurrTime;
     while(1)
     {
+    	/* Check for the owner's response */
+    	if (GET_BIT(APP_u16Flags, SMSRXFLAG))
+    	{
+    		if (GSM_u8RecordMessage())
+    		{
+    			/* Exit 'Alert' mode */
+	    		GSM_voidDisableSMSRx();
+	    		CLR_BIT(APP_u16Flags, ALERTACK);
+	    		CLR_BIT(APP_u16Flags, ALERT);
+	    		CLR_BIT(APP_u16Flags, LOCTRACKING);
+	    		CLR_BIT(APP_u16Flags, ADVLOCKFLAG);
+	    		GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_LOW);
+	    		GPIO_voidSetPinValueDirectAccess(IOA, PIN3, OUTPUT_HIGH);
+	    		APP_u8Attempts = 2;
+	    		GSM_voidSendSMS((u8*)"Car alert mode disabled!");
+    		}
+    		else if (!GET_BIT(APP_u16Flags, ADVLOCKFLAG))
+    		{
+    			/* Block engine driver */
+    			GPIO_voidSetPinValueDirectAccess(IOA, PIN3, OUTPUT_LOW);
+    			GSM_voidSetSMSVerificationCallBack(&APP_voidUserVerified);
+    			GSM_voidSendSMS((u8*)"Advanced engine locking activated!");
+    			SET_BIT(APP_u16Flags, ADVLOCKFLAG);
+    		}
+    		CLR_BIT(APP_u16Flags, SMSRXFLAG);
+    	}
     	/* Record time since boot */
     	Local_u32CurrTime = STK_u32GetElapsedTime();
     	/* Turn off the unlock LED after a cool-down */
@@ -170,6 +204,11 @@ int main()
     		}
     		SET_BIT(APP_u16Flags, BUTTONHOLD);
     	}
+    	/* Send current location */
+    	if (GET_BIT(APP_u16Flags, LOCTRACKING) && Local_u32CurrTime >= APP_u32LocUpdateTime)
+    	{
+    		GSM_voidSendSMS((u8*)"<placeholder>");
+    	}
     	/* Notify the owner of a theft attempt if alert mode was activated */
     	if (GET_BIT(APP_u16Flags, ALERT))
     	{
@@ -180,6 +219,8 @@ int main()
 	    		GSM_voidMakeCall();
 	    		GSM_voidSetSMSVerificationCallBack(&APP_voidUserVerified);
 	    		SET_BIT(APP_u16Flags, ALERTACK);
+	    		SET_BIT(APP_u16Flags, LOCTRACKING);
+	    		APP_u32LocUpdateTime = Local_u32CurrTime + 3000000;
     		}
     	}
     }
@@ -200,14 +241,13 @@ void APP_voidTimerAdjust(void)
 	APP_u32NextUnlockAttemptTime = 0;
 	APP_u32NextIgnitionAttemptTime = 0;
 	APP_u32LEDTurnOffTime = 0;
+	APP_u32LocUpdateTime = 0;
 }
 
 void APP_voidUserVerified(void)
 {
-	/* Exit 'Alert' mode */
-	GSM_voidDisableSMSRx();
-	CLR_BIT(APP_u16Flags, ALERTACK);
-	CLR_BIT(APP_u16Flags, ALERT);
-	GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_LOW);
-	APP_u8Attempts = 2;
+	if (GET_BIT(APP_u16Flags, ALERT))
+	{
+		SET_BIT(APP_u16Flags, SMSRXFLAG);
+	}
 }

@@ -51,6 +51,35 @@ void GSM_voidMakeCall(void)
 	TIM4_voidSetBusyWait(5000);
 }
 
+u8 GSM_u8RecordMessage(void)
+{
+	u8 Local_u8Temp = 0;
+	while(1)
+	{
+		if (USART1_u8Receive() == '\r' && USART1_u8Receive() == '\n')
+		{
+			while(1)
+			{
+				GSM_u8MessageBuffer[Local_u8Temp] = USART1_u8Receive();
+				if (GSM_u8MessageBuffer[Local_u8Temp++] == '\r')
+				{
+					break;
+				}
+			}
+			if (GSM_u8MessageBuffer[0] == GSM_u8Unlock_Code[0] &&
+				GSM_u8MessageBuffer[1] == GSM_u8Unlock_Code[1] &&
+				GSM_u8MessageBuffer[2] == GSM_u8Unlock_Code[2] &&
+				GSM_u8MessageBuffer[3] == GSM_u8Unlock_Code[3] &&
+				GSM_u8MessageBuffer[4] == GSM_u8Unlock_Code[4] &&
+				GSM_u8MessageBuffer[5] == GSM_u8Unlock_Code[5])
+			{
+				return 1;
+			}
+			return 0;
+		}
+	}
+}
+
 void GSM_voidSetSMSVerificationCallBack(void (*LpF)(void))
 {
 	GSM_GpF = LpF;

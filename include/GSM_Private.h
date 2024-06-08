@@ -5,6 +5,7 @@
 #define GSM_PRIVATE_H
 
 static const u8 GSM_u8Phone_Number[] = PHONE_NUMBER;
+static const u8 GSM_u8Unlock_Code[] = UNLOCK_CODE;
 
 static void GSM_voidSendCMD(u8* Copy_u8ptrMessage, u8 Copy_u8Confirmation);
 static void GSM_voidCheckSMS(void);
