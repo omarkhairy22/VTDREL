@@ -208,6 +208,7 @@ int main()
     	if (GET_BIT(APP_u16Flags, LOCTRACKING) && Local_u32CurrTime >= APP_u32LocUpdateTime)
     	{
     		GSM_voidSendSMS((u8*)"<placeholder>");
+    		APP_u32LocUpdateTime = Local_u32CurrTime + 3000000;
     	}
     	/* Notify the owner of a theft attempt if alert mode was activated */
     	if (GET_BIT(APP_u16Flags, ALERT))
