@@ -13,25 +13,23 @@
 #include "IR_Interface.h"
 #include "GSM_Interface.h"
 
-#define		IRCODE			0xA2
+#define		IRCODE			0xC2		// Play button on IR remote
 
 #define		UNLOCKREQ		0
 #define		UNLOCKED		1
 #define		LEDON			2
 #define		ALERT			3
 #define		ALERTACK		4
-#define		LOCTRACKING		5
-#define		SMSRXFLAG		6
-#define		ADVLOCKFLAG		7
-#define		BUTTONHOLD		8
-#define		ENGINEON		9
+#define		SMSRXFLAG		5
+#define		ADVLOCKFLAG		6
+#define		BUTTONHOLD		7
+#define		ENGINEON		8
 
 u8 APP_u8Attempts;
 u16 APP_u16Flags;
 u32 APP_u32NextUnlockAttemptTime = 0;
 u32 APP_u32NextIgnitionAttemptTime = 0;
 u32 APP_u32LEDTurnOffTime = 0;
-u32 APP_u32LocUpdateTime = 0;
 void APP_voidUnlockRequest(void);
 void APP_voidTimerAdjust(void);
 void APP_voidUserVerified(void);
@@ -54,6 +52,9 @@ int main()
     RCC_voidEnablePerClk(APB1, 1);
     /* Enable Clk for the peripheral TIM4 */
     RCC_voidEnablePerClk(APB1, 2);
+    /* Simple flashing protection */
+    GPIO_voidSetPinMode(IOA, PIN13, OUTPUT);
+    GPIO_voidSetPinMode(IOA, PIN14, OUTPUT);
     /* Init SysTick */
     STK_voidInit();
     STK_voidSetIntervalPeriodic(0xFFFFFFFF, &APP_voidTimerAdjust);
@@ -117,7 +118,6 @@ int main()
 	    		GSM_voidDisableSMSRx();
 	    		CLR_BIT(APP_u16Flags, ALERTACK);
 	    		CLR_BIT(APP_u16Flags, ALERT);
-	    		CLR_BIT(APP_u16Flags, LOCTRACKING);
 	    		CLR_BIT(APP_u16Flags, ADVLOCKFLAG);
 	    		GPIO_voidSetPinValueDirectAccess(IOA, PIN1, OUTPUT_LOW);
 	    		GPIO_voidSetPinValueDirectAccess(IOA, PIN3, OUTPUT_HIGH);
@@ -194,21 +194,11 @@ int main()
     			TOG_BIT(APP_u16Flags, ENGINEON);
     			GPIO_voidSetPinValueDirectAccess(IOA, PIN2, GET_BIT(APP_u16Flags, ENGINEON));
     		}
-    		else if (APP_u8Attempts)
-    		{
-    			APP_u8Attempts--;
-    		}
     		else
     		{
     			SET_BIT(APP_u16Flags, ALERT);
     		}
     		SET_BIT(APP_u16Flags, BUTTONHOLD);
-    	}
-    	/* Send current location */
-    	if (GET_BIT(APP_u16Flags, LOCTRACKING) && Local_u32CurrTime >= APP_u32LocUpdateTime)
-    	{
-    		GSM_voidSendSMS((u8*)"<placeholder>");
-    		APP_u32LocUpdateTime = Local_u32CurrTime + 3000000;
     	}
     	/* Notify the owner of a theft attempt if alert mode was activated */
     	if (GET_BIT(APP_u16Flags, ALERT))
@@ -220,8 +210,6 @@ int main()
 	    		GSM_voidMakeCall();
 	    		GSM_voidSetSMSVerificationCallBack(&APP_voidUserVerified);
 	    		SET_BIT(APP_u16Flags, ALERTACK);
-	    		SET_BIT(APP_u16Flags, LOCTRACKING);
-	    		APP_u32LocUpdateTime = Local_u32CurrTime + 3000000;
     		}
     	}
     }
@@ -242,7 +230,6 @@ void APP_voidTimerAdjust(void)
 	APP_u32NextUnlockAttemptTime = 0;
 	APP_u32NextIgnitionAttemptTime = 0;
 	APP_u32LEDTurnOffTime = 0;
-	APP_u32LocUpdateTime = 0;
 }
 
 void APP_voidUserVerified(void)
