@@ -74,6 +74,8 @@ u8 GSM_u8RecordMessage(void)
 				GSM_u8MessageBuffer[5] == GSM_u8Unlock_Code[5] &&
 				GSM_u8MessageBuffer[6] == '\r')
 			{
+				GSM_u8MessageBuffer[5] = 0;
+				GSM_u8MessageBuffer[6] = 0;
 				return 1;
 			}
 			return 0;
