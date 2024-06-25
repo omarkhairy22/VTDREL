@@ -128,8 +128,8 @@ int main()
     		{
     			/* Block engine driver */
     			GPIO_voidSetPinValueDirectAccess(IOA, PIN3, OUTPUT_LOW);
-    			GSM_voidSetSMSVerificationCallBack(&APP_voidUserVerified);
-    			GSM_voidSendSMS((u8*)"Advanced engine locking activated!");
+			GSM_voidSendSMS((u8*)"Advanced engine locking activated!");
+			GSM_voidSetSMSVerificationCallBack(&APP_voidUserVerified);
     			SET_BIT(APP_u16Flags, ADVLOCKFLAG);
     		}
     		CLR_BIT(APP_u16Flags, SMSRXFLAG);
